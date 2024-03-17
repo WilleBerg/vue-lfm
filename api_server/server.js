@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
+const md5 = require('md5')
+
+
 const app = express();
 const PORT = 3000;
-const md5 = require('md5')
+const TIMEOUT_MS = 10000
 
 const { apiKey, 
     secret, 
@@ -10,7 +13,6 @@ const { apiKey,
     sessionKeyTeitan, 
     tokenSylt, 
     tokenTeitan } = require("./config.json");
-const { axios } = require('axios')
 
 const LAST_FM_API_KEY = apiKey;
 const LAST_FM_API_BASE = "http://ws.audioscrobbler.com/2.0/";
@@ -19,16 +21,9 @@ const {getRecentTracks} = require('./lastfm/get_recent')
 let scrobblers = []
 ms()
 
-const SCROBBLER_TIMEOUT = 10000000
+const SCROBBLER_TIMEOUT = 7200000
 
 app.use(cors()); // Enable CORS for all routes
-
-app.get('/api/data', (req, res) => {
-  // Logic to handle the request
-  console.log("Request gotten")
-  const data = { message: 'Data from Express.js server' };
-  res.json(data);
-});
 
 app.get('/api/getRecentSongs/:user', async (req, res) => {
     const username = req.params.user;
@@ -38,27 +33,69 @@ app.get('/api/getRecentSongs/:user', async (req, res) => {
     res.json(recentSongs.recenttracks)
 });
 
+app.get('/api/ismulti/:user', async (req, res) => {
+    console.log("Got ismulti request on " + req.params.user)
+    let user = req.params.user;
+    is = isScrobbling(user);
+    // console.log(`User ${user} is listening: ${is}`);
+    res.json({
+        isMulti: is,
+    })
+});
+
+app.get('/api/timeleft/:user/:user_to_listen', async (req, res) => {
+    let user = req.params.user;
+    let user_to_listen = req.params.user_to_listen;
+    console.log("Timeleft call: " + user + " " + user_to_listen);
+    let timeleft = time_left(user, user_to_listen);
+    if (timeleft == false) {
+        res.status(400).json({
+            message: "No such user"
+        })
+    } else {
+        res.json({
+            timeout: timeleft
+        })
+    }
+});
+
 app.put('/api/multiscrobble/:user/:user_to_follow', (req, res) => {
     console.log(`Multiscrobble request ${req.params.user} to follow ${req.params.user_to_follow}`)
-    let user = req.params.user
-    // let user_to_follow = req.params.user_to_follow
-    let user_to_follow = 'teitan-'
-    let sessionKey = ''
-    if (user == 'sylt_-') {
-       sessionKey = sessionKeySylt; 
-    } else if (user == 'teitan-') {
-        sessionKey = sessionKeyTeitan
+    try {
+        let user = req.params.user
+        let user_to_follow = req.params.user_to_follow
+        // let user_to_follow = 'teitan-'
+        let sessionKey = ''
+        if (user == 'sylt_-') {
+        sessionKey = sessionKeySylt; 
+        } else if (user == 'teitan-') {
+            sessionKey = sessionKeyTeitan
+        }
+        scrobblers.push({
+            user: user,
+            userToListen: user_to_follow,
+            lastScrobbledTrack: null,
+            sessionKey: sessionKey,
+            isFirstScrobble: true,
+            _id: 0,
+            remove: false,
+            timeout: SCROBBLER_TIMEOUT,
+        })
+        res.status(200).json({ message: 'Success', timeout: SCROBBLER_TIMEOUT});
+    } catch {
+        res.status(400).json({message: "Something went wrong"})
     }
-    scrobblers.push({
-        user: user,
-        userToListen: user_to_follow,
-        lastScrobbledTrack: null,
-        sessionKey: sessionKey,
-        isFirstScrobble: true,
-        _id: 0,
-        remove: false,
-        timeout: SCROBBLER_TIMEOUT,
-    })
+});
+app.put('/api/stopmulti/:user/:user_to_follow', (req, res) => {
+    let user = req.params.user;
+    let user_to_follow = req.params.user_to_follow;
+    console.log(`Multiscrobble stop request from ${req.params.user} to follow ${req.params.user_to_follow}`)
+    let removed = stopscrobbling(user)
+    if (removed) {
+        res.status(200).json({ message: 'Success' });
+    } else {
+        res.status(400).json({message: "Something went wrong"});
+    }
 });
 
 app.listen(PORT, () => {
@@ -66,10 +103,16 @@ app.listen(PORT, () => {
 });
 
 async function ms() {
+    let currentScrobblersAmount = getCurrentScrobblers().length;
+    let lastCurrentScrobblersAmount = currentScrobblersAmount;
     while (true) {
-        console.log(scrobblers)
+        let currentScrobblersAmount = getCurrentScrobblers().length;
+        if (currentScrobblersAmount != lastCurrentScrobblersAmount) {
+            console.log(getCurrentScrobblers())
+        }
         updateScrobblers()
-        await sleep(10000)
+        await sleep(TIMEOUT_MS)
+        lastCurrentScrobblersAmount = currentScrobblersAmount
     }
 }
 
@@ -77,6 +120,27 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getCurrentScrobblers() {
+    return scrobblers;
+}
+
+function isScrobbling(user) {
+    for (var i = 0; i < scrobblers.length; i++) {
+        if (scrobblers[i]['user'] == user) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function time_left(user, user_to_follow) {
+    for (var i = 0; i < scrobblers.length; i++) {
+        if (scrobblers[i]['user'] == user && scrobblers[i]['userToListen'] == user_to_follow) {
+            return scrobblers[i].timeout;
+        }
+    }
+    return false;
+}
 
 async function updateScrobblers() {
     for (var i = 0; i < scrobblers.length; i++) {
@@ -87,7 +151,7 @@ async function updateScrobblers() {
             }
             i--;
         }
-        scrobblers[i].timeout -= 1000 * 10;
+        scrobblers[i].timeout -= TIMEOUT_MS;
         if (scrobblers[i].timeout <= 0) {
             scrobblers[i].remove = true;
         }
@@ -268,4 +332,16 @@ async function updateNowPlaying(songName, artistName, album, sessionKey) {
         log(`Error from updateNowPlaying: ${error}`);
         return "error";
     }
+}
+
+async function stopscrobbling(user) {
+    removed = false
+    for (let i = 0; i < scrobblers.length; i++) {
+        if (scrobblers[i]["user"] == user) {
+            scrobblers.splice(i, 1);
+            removed = true
+            return removed;
+        }
+    }
+    return removed;
 }

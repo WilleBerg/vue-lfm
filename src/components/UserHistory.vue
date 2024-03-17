@@ -1,44 +1,45 @@
+<style>
+    div {
+        font-family: Inter;
+    }
+</style>
 <template>
     <div>
-        <div>
-            <h1>HELLO</h1>
+        <div style="border: 1px solid #223566; border-radius: 6px; margin-bottom: 8px;">
+            <SButton 
+            text="Emmy ta williams scrobbles"
+            :playing_prop="'teitan-'"
+            :listening_prop="'sylt_-'"
+            />
         </div>
-        <div>
-            <h1>Search for users!</h1>
-                <form @submit.prevent="handleSubmit">
-                    <label for="inputValue">Enter a value:</label>
-                    <input id="inputValue" type="text" v-model="inputValue">
-                    <button type="submit">Submit</button>
-                </form>
-                <p>Current value: {{ inputValue }}</p>
-        </div>
-        <div>
-            <h1>Result from user search</h1>
-            <p v-if="userData == ''">There is no data</p>
-            <div v-else>
-                <li v-for="song in userData.track">
-                    Song: {{ song.name }}, Artist: {{ song.artist['#text'] }}, <img :src="song.image[0]['#text']"/>
-                </li>
-            </div>
+        <div style="border: 1px solid #223566; border-radius: 6px; margin-top: 8px;">
+            <SButton 
+            text="William ta Emmys scorbbles"
+            :playing_prop="'sylt_-'"
+            :listening_prop="'teitan-'"
+            />
         </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
+import SButton from './SButton.vue';
+import StopButton from './StopButton.vue'
 
 export default {
+    components: {
+        SButton,
+        StopButton,
+    },
     data() {
         return {
-            test: "TuSTING",
-            response: '',
-            inputValue: '',
-            userData: '',
+
         }
     },
     methods: {
+
         async fetchData() {
-            console.log("Hello")
             try {
                 const response = await axios.get('http://localhost:3000/api/data');
                 this.response = response.data.message;
@@ -46,19 +47,6 @@ export default {
                 console.error('Error fetching data:', error);
             }
         },
-        async fetchUserData() {
-            axios.put('http://localhost:3000/api/multiscrobble/' + this.inputValue + '/' + this.inputValue)
-                .then(response => {
-                    this.userData = response.data
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        },
-        async handleSubmit() {
-            console.log("handled");
-            this.fetchUserData();
-        }
     }
 }
 </script>
