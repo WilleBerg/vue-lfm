@@ -69,7 +69,7 @@ export default {
         },
         async getTime() {
             console.log("Checking getTime on " + this.playing_prop)
-            axios.get(`http://localhost:3000/api/timeleft/${this.playing_prop}/${this.listening_prop}`)
+            axios.get(`http://192.168.2.107:3000/api/timeleft/${this.playing_prop}/${this.listening_prop}`)
                 .then(response => {
                     console.log(response.data)
                     let timeout = response.data.timeout;
@@ -86,7 +86,7 @@ export default {
         },
         async isPlaying(user) {
             console.log("Checking isplaying on " + user)
-            axios.get('http://localhost:3000/api/ismulti/' + user)
+            axios.get('http://192.168.2.107:3000/api/ismulti/' + user)
                 .then(response => {
                     this.playing = response.data.isMulti;
                 })
@@ -96,7 +96,7 @@ export default {
         },
         stopScrobbling() {
             this.playing = false;
-            axios.put(`http://localhost:3000/api/stopmulti/${this.playing_prop}/${this.listening_prop}`)
+            axios.put(`http://192.168.2.107:3000/api/stopmulti/${this.playing_prop}/${this.listening_prop}`)
             .then(response => {
                 console.log(response.data)
             })
@@ -105,7 +105,7 @@ export default {
             });
         },
         startScrobbling() {
-            axios.put(`http://localhost:3000/api/multiscrobble/${this.playing_prop}/${this.listening_prop}`)
+            axios.put(`http://192.168.2.107:3000/api/multiscrobble/${this.playing_prop}/${this.listening_prop}`)
             .then(response => {
                 console.log(response.data)
                 this.time = this.getDate(response.data.timeout);
