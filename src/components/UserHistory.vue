@@ -1,24 +1,19 @@
 <style>
-    div {
-        font-family: Inter;
-    }
+div {
+    font-family: Inter;
+}
+
+.inner-divs {
+    border: 1px solid #223566;
+    border-radius: 6px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
 </style>
 <template>
     <div>
-        <div style="border: 1px solid #223566; border-radius: 6px; margin-bottom: 8px;">
-            <SButton 
-            text="Emmy ta williams scrobbles"
-            :playing_prop="'teitan-'"
-            :listening_prop="'sylt_-'"
-            />
-        </div>
-        <div style="border: 1px solid #223566; border-radius: 6px; margin-top: 8px;">
-            <SButton 
-            text="William ta Emmys scorbbles"
-            :playing_prop="'sylt_-'"
-            :listening_prop="'teitan-'"
-            />
-        </div>
+        <SButton text="Emmy ta williams scrobbles" :playing_prop="'teitan-'" :listening_prop="'sylt_-'" />
+        <SButton text="William ta Emmys scorbbles" :playing_prop="'sylt_-'" :listening_prop="'teitan-'" />
     </div>
 </template>
 
@@ -26,22 +21,22 @@
 import axios from 'axios';
 import SButton from './SButton.vue';
 import StopButton from './StopButton.vue'
+import ScrobbleHist from './ScrobbleHist.vue'
+import config from '../../config.json'
 
 export default {
     components: {
         SButton,
         StopButton,
+        ScrobbleHist,
     },
     data() {
-        return {
-
-        }
     },
     methods: {
 
         async fetchData() {
             try {
-                const response = await axios.get('http://localhost:3000/api/data');
+                const response = await axios.get(`${config.API_IP}/api/data`);
                 this.response = response.data.message;
             } catch (error) {
                 console.error('Error fetching data:', error);
