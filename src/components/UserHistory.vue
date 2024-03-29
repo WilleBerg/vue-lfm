@@ -12,7 +12,7 @@ div {
 </style>
 <template>
     <div>
-        <SButton text="Emmy ta williams scrobbles" :playing_prop="'teitan-'" :listening_prop="'sylt_-'" />
+        <SButton text="Emmy ta Williams scrobbles" :playing_prop="'teitan-'" :listening_prop="'sylt_-'" />
         <SButton text="William ta Emmys scorbbles" :playing_prop="'sylt_-'" :listening_prop="'teitan-'" />
     </div>
 </template>

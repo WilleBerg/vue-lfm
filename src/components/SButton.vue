@@ -10,7 +10,8 @@
 
 .button {
     color: white;
-    margin: 10px;
+    margin: 10px 2px 5px 10px;
+
     border: none;
     padding: 16px 12px;
     border-radius: 6px;
@@ -29,7 +30,7 @@
 }
 
 .buttons-container {
-    margin-right: 20px;
+    margin-right: 10px;
     /* Add spacing between buttons and h3 */
 }
 
@@ -83,6 +84,29 @@
     overflow-y: auto;
     /* Enable vertical scrolling */
 }
+
+.p-time {
+    font-size: 10px;
+    margin: 0px 10px 0px 10px;
+}
+
+.now-playing-div {
+    flex: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.now-playing-text {
+    font-size: 14px;
+    float: right;
+}
+
+.now-playing-gif {
+    width: 20%;
+    height: 20%;
+    float: right;
+}
 </style>
 <template>
     <div :class="{ 'inner-divs': playing }">
@@ -93,13 +117,14 @@
                     {{ text }}
                 </button>
                 <StopButton text="Stop Scrobbling" v-if="playing" @stop-scrobbling="stopScrobbling" />
-                <p style="font-size: 10px;" v-if="playing">Started scrobbling: {{ this.formatDate(startedScrobbling) }}
+                <p class="p-time" v-if="playing">Started scrobbling: {{
+        this.formatDate(startedScrobbling) }}
                 </p>
-                <p style="font-size: 10px;" v-if="playing">Scrobbling until: {{ time }}</p>
+                <p class="p-time" v-if="playing">Scrobbling until: {{ time }}</p>
             </div>
 
         </div>
-        <div v-if="playing" class="recent-scrobbles">
+        <div v-if="playing && songsScrobbled.length > 0" class="recent-scrobbles">
             <div>
                 <h2>Songs scrobbled:</h2>
                 <div class="list" v-if="songsScrobbled.length >= 3">
@@ -107,6 +132,11 @@
                         <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
                             <img :src="song.image[1]['#text']" alt="Song image" />
                             <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                            <div class="now-playing-div"
+                                v-if="song['@attr'] != undefined && song['@attr'].nowplaying == 'true'">
+                                <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
+                                <p class="now-playing-text">Now playing...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -114,6 +144,11 @@
                     <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
                         <img :src="song.image[1]['#text']" alt="Song image" />
                         <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                        <div class="now-playing"
+                            v-if="song['@attr'] != undefined && song['@attr'].nowplaying == 'true'">
+                            <p>Now playing...</p>
+                            <img src="../assets/cat-jam.gif" alt="cat dancing" />
+                        </div>
                     </div>
                 </div>
 
