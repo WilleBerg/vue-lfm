@@ -144,10 +144,10 @@
                     <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
                         <img :src="song.image[1]['#text']" alt="Song image" />
                         <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
-                        <div class="now-playing"
+                        <div class="now-playing-div"
                             v-if="song['@attr'] != undefined && song['@attr'].nowplaying == 'true'">
-                            <p>Now playing...</p>
-                            <img src="../assets/cat-jam.gif" alt="cat dancing" />
+                            <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
+                            <p class="now-playing-text">Now playing...</p>
                         </div>
                     </div>
                 </div>
