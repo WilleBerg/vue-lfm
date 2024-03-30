@@ -69,6 +69,8 @@
 .item-div img {
     height: 100%;
     width: 100%;
+    max-height: 64px;
+    max-width: 64px;
     margin-right: 10px;
     /* Add spacing between image and text */
 }
