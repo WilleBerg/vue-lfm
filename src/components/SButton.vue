@@ -63,12 +63,12 @@
     margin: 10px;
     display: flex;
     align-items: center;
-    overflow: hidden;
     /* Add margin between list items */
 }
 
 .item-div img {
-    height: auto;
+    height: 100%;
+    width: 100%;
     margin-right: 10px;
     /* Add spacing between image and text */
 }
@@ -115,7 +115,7 @@
 .song-div {
     flex: 60%;
     display: flex;
-    align-content: center;
+    align-items: center;
 }
 </style>
 <template>
@@ -141,7 +141,7 @@
                     <div class="scrollable">
                         <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
                             <div class="song-div">
-                                <img :src="song.image[1]['#text']" alt="Song image" />
+                                <img :src="song.image[2]['#text']" alt="Song image" />
                                 <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
                             </div>
                             <div class="now-playing-div"
@@ -155,7 +155,7 @@
                 <div class="list" v-else>
                     <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
                         <div class="song-div">
-                            <img :src="song.image[1]['#text']" alt="Song image" />
+                            <img :src="song.image[2]['#text']" alt="Song image" />
                             <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
                         </div>
                         <div class="now-playing-div"
