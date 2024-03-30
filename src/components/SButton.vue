@@ -63,6 +63,7 @@
     margin: 10px;
     display: flex;
     align-items: center;
+    overflow: hidden;
     /* Add margin between list items */
 }
 
@@ -75,6 +76,7 @@
 .item-div p {
     margin: 0;
     margin-right: 10px;
+    display: flex;
     /* Remove default margin */
 }
 
@@ -91,7 +93,7 @@
 }
 
 .now-playing-div {
-    flex: 30%;
+    flex: 40%;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -103,9 +105,17 @@
 }
 
 .now-playing-gif {
-    width: 20%;
-    height: 20%;
+    width: 50%;
+    height: 50%;
+    max-height: 64px;
     float: right;
+    overflow: hidden;
+}
+
+.song-div {
+    flex: 60%;
+    display: flex;
+    align-content: center;
 }
 </style>
 <template>
@@ -130,24 +140,28 @@
                 <div class="list" v-if="songsScrobbled.length >= 3">
                     <div class="scrollable">
                         <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
-                            <img :src="song.image[1]['#text']" alt="Song image" />
-                            <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                            <div class="song-div">
+                                <img :src="song.image[1]['#text']" alt="Song image" />
+                                <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                            </div>
                             <div class="now-playing-div"
                                 v-if="song['@attr'] != undefined && song['@attr'].nowplaying == 'true'">
-                                <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
                                 <p class="now-playing-text">Now playing...</p>
+                                <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="list" v-else>
                     <div v-for="(song, index) in songsScrobbled" :key="index" class="item-div">
-                        <img :src="song.image[1]['#text']" alt="Song image" />
-                        <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                        <div class="song-div">
+                            <img :src="song.image[1]['#text']" alt="Song image" />
+                            <p>{{ song.artist['#text'] }} - {{ song.name }}</p>
+                        </div>
                         <div class="now-playing-div"
                             v-if="song['@attr'] != undefined && song['@attr'].nowplaying == 'true'">
-                            <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
                             <p class="now-playing-text">Now playing...</p>
+                            <img class="now-playing-gif" src="../assets/cat-jam.gif" alt="cat dancing" />
                         </div>
                     </div>
                 </div>
